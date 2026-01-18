@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+:root {
+  --bg: #0a0f0a;
+  --card: #0d1a0d;
+  --border: #1a3a1a;
+  --text: #00ff41;
+  --text-dim: #00aa2a;
+  --text-bright: #7fff00;
+  --red: #ff3333;
+  --orange: #ff6600;
+  --yellow: #ffcc00;
+  --green: #00ff41;
+  --cyan: #00ffff;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Share Tech Mono', monospace;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scanlines overlay */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.1) 0px,
+    rgba(0, 0, 0, 0.1) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* CRT glow effect */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.3) 100%);
+  pointer-events: none;
+  z-index: 9998;
+}
+
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+@keyframes scan { 0%{top:-100%} 100%{top:100%} }
+@keyframes glow { 0%,100%{text-shadow:0 0 10px var(--green)} 50%{text-shadow:0 0 20px var(--green), 0 0 30px var(--green)} }
+
+/* Scanner bar animation */
+@keyframes scannerMove {
+  0% { left: -30%; }
+  100% { left: 100%; }
+}
+
+@keyframes radarSweep {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+.pulse { animation: pulse 2s infinite; }
+.blink { animation: blink 1s infinite; }
+.glow { animation: glow 2s infinite; }
+
+.leaflet-container { background: #0a0f0a !important; }
+.leaflet-control-zoom { display: none !important; }
+.leaflet-control-attribution { 
+  background: rgba(0,15,0,0.8) !important; 
+  color: var(--text-dim) !important; 
+  font-size: 9px !important;
+  padding: 2px 5px !important;
+  font-family: 'Share Tech Mono', monospace !important;
+}
+.leaflet-control-attribution a { color: var(--green) !important; }
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
