@@ -20,13 +20,14 @@
     "productName": "NATO Watch",
     "mac": {
       "category": "public.app-category.news",
-      "target": ["dmg", "zip"],
-      "icon": "public/icon.svg",
-      "darkModeSupport": true
+      "target": ["dir"],
+      "icon": "public/icon.png",
+      "darkModeSupport": true,
+      "identity": null
     },
     "win": {
       "target": "nsis",
-      "icon": "public/icon.svg"
+      "icon": "public/icon.png"
     },
     "files": [
       "electron/**/*",
