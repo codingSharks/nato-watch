@@ -305,13 +305,30 @@ function MapCard({ region, aircraft, height, onClick, isMain }: { region: MapReg
         const isMil = ac.is_military;
         const color = isMil ? '#ff3333' : '#00ff41';
         const size = isMil ? 16 : 10;
+        const label = ac.callsign || ac.type || ac.reg || '';
+        const showLabel = isMil && label; // Only show labels for military aircraft with callsigns
 
         const icon = L.divIcon({
           className: '',
-          html: `<svg width="${size}" height="${size}" viewBox="0 0 24 24" style="transform:rotate(${ac.track || 0}deg);filter:drop-shadow(0 0 4px ${color})">
-            <path d="M12 2L8 10H4L2 14H8L10 22H14L16 14H22L20 10H16L12 2Z" fill="${color}"/>
-          </svg>`,
-          iconSize: [size, size],
+          html: `<div style="position:relative;display:flex;flex-direction:column;align-items:center;">
+            <svg width="${size}" height="${size}" viewBox="0 0 24 24" style="transform:rotate(${ac.track || 0}deg);filter:drop-shadow(0 0 4px ${color})">
+              <path d="M12 2L8 10H4L2 14H8L10 22H14L16 14H22L20 10H16L12 2Z" fill="${color}"/>
+            </svg>
+            ${showLabel ? `<span style="
+              position:absolute;
+              top:${size + 2}px;
+              left:50%;
+              transform:translateX(-50%);
+              font-size:9px;
+              font-weight:600;
+              color:${color};
+              text-shadow:0 0 4px rgba(0,0,0,0.9), 0 0 2px #000;
+              white-space:nowrap;
+              pointer-events:none;
+              letter-spacing:0.5px;
+            ">${label}</span>` : ''}
+          </div>`,
+          iconSize: [size, showLabel ? size + 14 : size],
           iconAnchor: [size / 2, size / 2],
         });
 
@@ -445,11 +462,22 @@ function LiveFeed({ aircraft }: { aircraft: Aircraft[] }) {
               color: '#00ff41', 
               display: 'flex', 
               justifyContent: 'space-between',
-              padding: '2px 0',
+              alignItems: 'center',
+              padding: '4px 0',
               borderBottom: '1px solid #0d1a0d',
+              gap: '8px',
             }}>
-              <span>{ac.callsign || ac.hex || ac.id}</span>
-              <span style={{ color: '#00aa2a' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                <span style={{ fontWeight: 600, letterSpacing: '0.5px' }}>
+                  {ac.callsign || ac.hex || ac.id}
+                </span>
+                {(ac.type || ac.reg) && (
+                  <span style={{ fontSize: '9px', color: '#00aa2a', opacity: 0.8 }}>
+                    {[ac.type, ac.reg].filter(Boolean).join(' • ')}
+                  </span>
+                )}
+              </div>
+              <span style={{ color: '#00aa2a', fontSize: '10px', whiteSpace: 'nowrap' }}>
                 {ac.altitude ? `FL${Math.round(ac.altitude/100)}` : '---'}
               </span>
             </div>
