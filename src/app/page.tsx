@@ -1586,24 +1586,97 @@ export default function Home() {
         color: T.primary,
         padding: '16px',
         fontFamily: "'Share Tech Mono', monospace",
+        position: 'relative',
       }}>
-        {/* TEST-BANNER für Deployment-Check */}
+      {/* Settings Modal global platzieren */}
+      {showSettings && (
         <div style={{
           position: 'fixed',
-          top: 0,
-          left: 0,
-          zIndex: 9999,
-          background: '#ff00ff',
-          color: '#fff',
-          fontWeight: 'bold',
-          padding: '6px 18px',
-          fontSize: '16px',
-          letterSpacing: '2px',
-          borderBottomRightRadius: '12px',
-          boxShadow: '0 2px 8px #0008',
+          inset: 0,
+          background: 'rgba(0,0,0,0.85)',
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontFamily: "'Share Tech Mono', monospace",
         }}>
-          TEST-DEPLOYMENT
+          <div style={{
+            background: T.backgroundAlt,
+            border: `1px solid ${T.border}`,
+            borderRadius: '8px',
+            padding: '32px 28px 24px 28px',
+            minWidth: '320px',
+            boxShadow: `0 0 40px ${T.primary}33`,
+            color: T.primary,
+            position: 'relative',
+          }}>
+            <div style={{ fontSize: '18px', fontWeight: 700, marginBottom: '18px', letterSpacing: '2px', textAlign: 'center' }}>
+              {lang === 'de' ? 'Einstellungen' : 'Settings'}
+            </div>
+            <div style={{ marginBottom: '18px' }}>
+              <label style={{ fontSize: '13px', color: T.primaryDim, marginRight: '10px' }}>{lang === 'de' ? 'Theme:' : 'Theme:'}</label>
+              <select
+                value={theme}
+                onChange={e => setTheme(e.target.value as 'military' | 'cyber')}
+                style={{
+                  background: T.background,
+                  color: T.primary,
+                  border: `1px solid ${T.primary}`,
+                  borderRadius: '2px',
+                  padding: '4px 12px',
+                  fontFamily: 'inherit',
+                  fontSize: '13px',
+                  marginLeft: '4px',
+                }}
+              >
+                <option value="military">MILITARY</option>
+                <option value="cyber">CYBER</option>
+              </select>
+            </div>
+            <div style={{ marginBottom: '18px' }}>
+              <label style={{ fontSize: '13px', color: T.primaryDim, marginRight: '10px' }}>{lang === 'de' ? 'Sprache:' : 'Language:'}</label>
+              <select
+                value={lang}
+                onChange={e => setLang(e.target.value as 'en' | 'de')}
+                style={{
+                  background: T.background,
+                  color: T.primary,
+                  border: `1px solid ${T.primary}`,
+                  borderRadius: '2px',
+                  padding: '4px 12px',
+                  fontFamily: 'inherit',
+                  fontSize: '13px',
+                  marginLeft: '4px',
+                }}
+              >
+                <option value="en">ENGLISH</option>
+                <option value="de">DEUTSCH</option>
+              </select>
+            </div>
+            <button
+              onClick={() => setShowSettings(false)}
+              style={{
+                background: 'transparent',
+                border: `1px solid ${T.primary}`,
+                color: T.primary,
+                padding: '8px 24px',
+                fontSize: '12px',
+                cursor: 'pointer',
+                borderRadius: '2px',
+                fontFamily: 'inherit',
+                letterSpacing: '1px',
+                marginTop: '10px',
+                display: 'block',
+                marginLeft: 'auto',
+                marginRight: 'auto',
+              }}
+            >
+              {lang === 'de' ? 'Schließen' : 'Close'}
+            </button>
+          </div>
         </div>
+      )}
+
         {/* Header */}
         <header style={{ 
           marginBottom: '20px',
