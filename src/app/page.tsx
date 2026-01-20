@@ -35,6 +35,56 @@ const animationStyles = `
   }
 `;
 
+// Theme definitions
+interface Theme {
+  name: string;
+  primary: string;
+  primaryDim: string;
+  secondary: string;
+  danger: string;
+  warning: string;
+  background: string;
+  backgroundAlt: string;
+  surface: string;
+  border: string;
+  borderDim: string;
+  glow: string;
+  glowDanger: string;
+}
+
+const THEMES: Record<string, Theme> = {
+  military: {
+    name: 'MILITARY',
+    primary: '#00ff41',
+    primaryDim: '#00aa2a',
+    secondary: '#00ff41',
+    danger: '#ff3333',
+    warning: '#ffcc00',
+    background: '#0a0f0a',
+    backgroundAlt: '#0d1a0d',
+    surface: 'rgba(0,20,0,0.8)',
+    border: '#1a3a1a',
+    borderDim: '#0d1a0d',
+    glow: 'rgba(0,255,65,0.3)',
+    glowDanger: 'rgba(255,51,51,0.3)',
+  },
+  cyber: {
+    name: 'CYBER',
+    primary: '#00f0ff',
+    primaryDim: '#0099aa',
+    secondary: '#ff00ff',
+    danger: '#ff0066',
+    warning: '#ffaa00',
+    background: '#0a0a12',
+    backgroundAlt: '#0d0d1a',
+    surface: 'rgba(10,10,25,0.9)',
+    border: '#1a1a3a',
+    borderDim: '#0d0d1a',
+    glow: 'rgba(0,240,255,0.3)',
+    glowDanger: 'rgba(255,0,102,0.3)',
+  },
+};
+
 // UI Strings - English
 const UI_EN = {
   // Primary statuses
@@ -240,7 +290,7 @@ const STATUS_CONFIG: Record<string, { color: string; label: string }> = {
   elevated: { color: '#ffcc00', label: 'ERHÖHT' },
 };
 
-function MapCard({ region, aircraft, height, onClick, isMain }: { region: MapRegion; aircraft: Aircraft[]; height: string; onClick?: () => void; isMain?: boolean }) {
+function MapCard({ region, aircraft, height, onClick, isMain, theme }: { region: MapRegion; aircraft: Aircraft[]; height: string; onClick?: () => void; isMain?: boolean; theme: Theme }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
   const initRef = useRef(false);
@@ -267,10 +317,15 @@ function MapCard({ region, aircraft, height, onClick, isMain }: { region: MapReg
         attributionControl: false,
       });
 
-      // Dark military style tiles
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        maxZoom: 18,
-      }).addTo(map);
+      // Theme-based tiles (military: dark, cyber: dark blue)
+      L.tileLayer(
+        theme.name === 'CYBER'
+          ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+          : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+        {
+          maxZoom: 18,
+        }
+      ).addTo(map);
 
       mapRef.current = map;
       setTimeout(() => map.invalidateSize(), 100);
@@ -303,11 +358,11 @@ function MapCard({ region, aircraft, height, onClick, isMain }: { region: MapReg
 
       filtered.forEach(ac => {
         const isMil = ac.is_military;
-        const color = isMil ? '#ff3333' : '#00ff41';
+        // Theme colors
+        const color = isMil ? theme.danger : theme.primary;
         const size = isMil ? 16 : 10;
         const label = ac.callsign || ac.type || ac.reg || '';
-        const showLabel = isMil && label; // Only show labels for military aircraft with callsigns
-
+        const showLabel = isMil && label;
         const icon = L.divIcon({
           className: '',
           html: `<div style="position:relative;display:flex;flex-direction:column;align-items:center;">
@@ -331,7 +386,6 @@ function MapCard({ region, aircraft, height, onClick, isMain }: { region: MapReg
           iconSize: [size, showLabel ? size + 14 : size],
           iconAnchor: [size / 2, size / 2],
         });
-
         L.marker([ac.latitude, ac.longitude], { icon }).addTo(map);
       });
     };
@@ -431,19 +485,19 @@ function MapCard({ region, aircraft, height, onClick, isMain }: { region: MapReg
   );
 }
 
-function LiveFeed({ aircraft }: { aircraft: Aircraft[] }) {
+function LiveFeed({ aircraft, theme }: { aircraft: Aircraft[]; theme: Theme }) {
   const military = aircraft.filter(a => a.is_military).slice(0, 8);
   
   return (
     <div style={{
-      background: 'rgba(0,20,0,0.8)',
-      border: '1px solid #1a3a1a',
+      background: theme.surface,
+      border: `1px solid ${theme.border}`,
       borderRadius: '4px',
       padding: '12px',
       fontSize: '11px',
     }}>
       <div style={{ 
-        color: '#ff3333', 
+        color: theme.danger, 
         fontWeight: 600, 
         marginBottom: '8px',
         display: 'flex',
@@ -455,16 +509,16 @@ function LiveFeed({ aircraft }: { aircraft: Aircraft[] }) {
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
         {military.length === 0 ? (
-          <div style={{ color: '#00aa2a' }}>NO MILITARY CONTACTS</div>
+          <div style={{ color: theme.primaryDim }}>NO MILITARY CONTACTS</div>
         ) : (
           military.map((ac, i) => (
             <div key={ac.id || ac.hex || i} style={{ 
-              color: '#00ff41', 
+              color: theme.primary, 
               display: 'flex', 
               justifyContent: 'space-between',
               alignItems: 'center',
               padding: '4px 0',
-              borderBottom: '1px solid #0d1a0d',
+              borderBottom: `1px solid ${theme.borderDim}`,
               gap: '8px',
             }}>
               <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
@@ -472,12 +526,12 @@ function LiveFeed({ aircraft }: { aircraft: Aircraft[] }) {
                   {ac.callsign || ac.hex || ac.id}
                 </span>
                 {(ac.type || ac.reg) && (
-                  <span style={{ fontSize: '9px', color: '#00aa2a', opacity: 0.8 }}>
+                  <span style={{ fontSize: '9px', color: theme.primaryDim, opacity: 0.8 }}>
                     {[ac.type, ac.reg].filter(Boolean).join(' • ')}
                   </span>
                 )}
               </div>
-              <span style={{ color: '#00aa2a', fontSize: '10px', whiteSpace: 'nowrap' }}>
+              <span style={{ color: theme.primaryDim, fontSize: '10px', whiteSpace: 'nowrap' }}>
                 {ac.altitude ? `FL${Math.round(ac.altitude/100)}` : '---'}
               </span>
             </div>
@@ -497,6 +551,7 @@ export default function Home() {
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [listeningMsgIndex, setListeningMsgIndex] = useState(0);
   const [lang, setLang] = useState<'en' | 'de'>('en');
+  const [theme, setTheme] = useState<'military' | 'cyber'>('military');
   const [showSignal, setShowSignal] = useState(true);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [sessionSig] = useState(() => generateSessionSig());
@@ -514,6 +569,7 @@ export default function Home() {
   
   const UI = lang === 'de' ? UI_DE : UI_EN;
   const LISTENING_MESSAGES = lang === 'de' ? LISTENING_MESSAGES_DE : LISTENING_MESSAGES_EN;
+  const T = THEMES[theme]; // Current theme colors
 
   // Use the Airplanes.live /mil endpoint - returns ALL military aircraft worldwide
   const { data: airspaceData, status: airspaceStatus, error: airspaceError, lastUpdate, refetch } = useAirspace({
@@ -980,13 +1036,13 @@ export default function Home() {
 
         <div style={{
           minHeight: '100vh',
-          background: '#0a0f0a',
+          background: T.background,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
           fontFamily: "'Share Tech Mono', monospace",
-          color: '#00ff41',
+          color: T.primary,
           position: 'relative',
           overflow: 'hidden',
           padding: '20px',
@@ -999,8 +1055,8 @@ export default function Home() {
             right: 0,
             bottom: 0,
             backgroundImage: `
-              linear-gradient(rgba(0,255,65,0.012) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(0,255,65,0.012) 1px, transparent 1px)
+              linear-gradient(${T.primary}05 1px, transparent 1px),
+              linear-gradient(90deg, ${T.primary}05 1px, transparent 1px)
             `,
             backgroundSize: '60px 60px',
           }} />
@@ -1020,19 +1076,33 @@ export default function Home() {
               top: 0,
               bottom: 0,
               width: '25%',
-              background: 'linear-gradient(90deg, transparent 0%, rgba(0,255,65,0.5) 50%, transparent 100%)',
+              background: `linear-gradient(90deg, transparent 0%, ${T.primary}80 50%, transparent 100%)`,
               animation: 'scannerMove 8s linear infinite',
             }} />
           </div>
 
-          {/* Language toggle - top right */}
+          {/* Language & Theme toggle - top right */}
           <div style={{ position: 'absolute', top: 20, right: 20, display: 'flex', gap: '8px', zIndex: 10 }}>
+            <button
+              onClick={() => setTheme(theme === 'military' ? 'cyber' : 'military')}
+              style={{
+                background: theme === 'cyber' ? 'rgba(0,240,255,0.15)' : 'rgba(0,255,65,0.15)',
+                border: `1px solid ${T.primary}`,
+                color: T.primary,
+                padding: '4px 8px',
+                fontSize: '9px',
+                cursor: 'pointer',
+                borderRadius: '2px',
+                fontFamily: 'inherit',
+                letterSpacing: '1px',
+              }}
+            >{T.name}</button>
             <button
               onClick={() => setLang('en')}
               style={{
-                background: lang === 'en' ? 'rgba(0,255,65,0.15)' : 'transparent',
-                border: `1px solid ${lang === 'en' ? '#00ff41' : '#1a3a1a'}`,
-                color: lang === 'en' ? '#00ff41' : '#00aa2a',
+                background: lang === 'en' ? `${T.primary}22` : 'transparent',
+                border: `1px solid ${lang === 'en' ? T.primary : T.border}`,
+                color: lang === 'en' ? T.primary : T.primaryDim,
                 padding: '4px 8px',
                 fontSize: '9px',
                 cursor: 'pointer',
@@ -1043,9 +1113,9 @@ export default function Home() {
             <button
               onClick={() => setLang('de')}
               style={{
-                background: lang === 'de' ? 'rgba(0,255,65,0.15)' : 'transparent',
-                border: `1px solid ${lang === 'de' ? '#00ff41' : '#1a3a1a'}`,
-                color: lang === 'de' ? '#00ff41' : '#00aa2a',
+                background: lang === 'de' ? `${T.primary}22` : 'transparent',
+                border: `1px solid ${lang === 'de' ? T.primary : T.border}`,
+                color: lang === 'de' ? T.primary : T.primaryDim,
                 padding: '4px 8px',
                 fontSize: '9px',
                 cursor: 'pointer',
@@ -1059,23 +1129,23 @@ export default function Home() {
             
             {/* ========== PRIMARY STATUS BLOCK ========== */}
             
-            {/* Calm radar - green tones, slow sweep (6s) */}
+            {/* Calm radar - theme colored, slow sweep (6s) */}
             <div style={{
               width: '140px',
               height: '140px',
               margin: '0 auto 30px',
               position: 'relative',
-              border: '1px solid #00ff4130',
+              border: `1px solid ${T.primary}30`,
               borderRadius: '50%',
-              boxShadow: '0 0 25px rgba(0,255,65,0.08), inset 0 0 15px rgba(0,255,65,0.03)',
+              boxShadow: `0 0 25px ${T.primary}15, inset 0 0 15px ${T.primary}08`,
             }}>
               {/* Concentric circles */}
-              <div style={{ position: 'absolute', top: '25%', left: '25%', right: '25%', bottom: '25%', border: '1px solid #00ff4110', borderRadius: '50%' }} />
-              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '50%', height: '50%', border: '1px solid #00ff4110', borderRadius: '50%' }} />
+              <div style={{ position: 'absolute', top: '25%', left: '25%', right: '25%', bottom: '25%', border: `1px solid ${T.primary}10`, borderRadius: '50%' }} />
+              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '50%', height: '50%', border: `1px solid ${T.primary}10`, borderRadius: '50%' }} />
               
               {/* Cross lines */}
-              <div style={{ position: 'absolute', top: '50%', left: '5%', right: '5%', height: '1px', background: '#00ff410a' }} />
-              <div style={{ position: 'absolute', left: '50%', top: '5%', bottom: '5%', width: '1px', background: '#00ff410a' }} />
+              <div style={{ position: 'absolute', top: '50%', left: '5%', right: '5%', height: '1px', background: `${T.primary}0a` }} />
+              <div style={{ position: 'absolute', left: '50%', top: '5%', bottom: '5%', width: '1px', background: `${T.primary}0a` }} />
               
               {/* Slow rotating sweep - 6s */}
               <div style={{
@@ -1093,8 +1163,8 @@ export default function Home() {
                   left: 0,
                   width: '100%',
                   height: '2px',
-                  background: 'linear-gradient(90deg, #00ff41 0%, rgba(0,255,65,0.3) 40%, transparent 100%)',
-                  boxShadow: '0 0 6px rgba(0,255,65,0.4)',
+                  background: `linear-gradient(90deg, ${T.primary} 0%, ${T.primary}4d 40%, transparent 100%)`,
+                  boxShadow: `0 0 6px ${T.primary}66`,
                 }} />
                 <div style={{
                   position: 'absolute',
@@ -1102,7 +1172,7 @@ export default function Home() {
                   left: 0,
                   width: '100%',
                   height: '100%',
-                  background: 'conic-gradient(from -90deg, transparent 0deg, rgba(0,255,65,0.06) 0deg, transparent 25deg)',
+                  background: `conic-gradient(from -90deg, transparent 0deg, ${T.primary}10 0deg, transparent 25deg)`,
                   transformOrigin: '0 0',
                 }} />
               </div>
@@ -1115,9 +1185,9 @@ export default function Home() {
                 transform: 'translate(-50%, -50%)',
                 width: '5px',
                 height: '5px',
-                background: '#00ff41',
+                background: T.primary,
                 borderRadius: '50%',
-                boxShadow: '0 0 6px #00ff41',
+                boxShadow: `0 0 6px ${T.primary}`,
               }} />
             </div>
 
@@ -1127,8 +1197,8 @@ export default function Home() {
               fontWeight: 'bold',
               letterSpacing: '5px',
               marginBottom: '8px',
-              color: '#00ff41',
-              textShadow: '0 0 12px rgba(0,255,65,0.25)',
+              color: T.primary,
+              textShadow: `0 0 12px ${T.primary}40`,
             }}>
               {UI.AIRSPACE_QUIET}
             </div>
@@ -1136,7 +1206,7 @@ export default function Home() {
             {/* Rotating subline - fade transition 1.7s cycle */}
             <div style={{
               fontSize: '11px',
-              color: '#00aa2a',
+              color: T.primaryDim,
               letterSpacing: '1px',
               marginBottom: '24px',
               minHeight: '16px',
@@ -1152,32 +1222,32 @@ export default function Home() {
               maxWidth: '300px',
               margin: '0 auto',
               padding: '12px 16px',
-              background: 'rgba(0,15,0,0.5)',
-              border: '1px solid #1a3a1a',
+              background: T.surface,
+              border: `1px solid ${T.border}`,
               borderRadius: '2px',
               fontSize: '10px',
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                <span style={{ color: '#00aa2a' }}>airplanes.live</span>
-                <span style={{ color: airspaceStatus === 'offline' ? '#ff3333' : airspaceStatus === 'degraded' ? '#ffcc00' : '#00ff41' }}>
+                <span style={{ color: T.primaryDim }}>airplanes.live</span>
+                <span style={{ color: airspaceStatus === 'offline' ? T.danger : airspaceStatus === 'degraded' ? T.warning : T.primary }}>
                   {airspaceStatus === 'offline' ? UI.VALUE_OFFLINE : airspaceStatus === 'degraded' ? UI.VALUE_DEGRADED : UI.VALUE_LIVE}
                 </span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                <span style={{ color: '#00aa2a' }}>{UI.LABEL_ADSB}</span>
-                <span style={{ color: '#00ff41' }}>{UI.VALUE_LIVE}</span>
+                <span style={{ color: T.primaryDim }}>{UI.LABEL_ADSB}</span>
+                <span style={{ color: T.primary }}>{UI.VALUE_LIVE}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                <span style={{ color: '#00aa2a' }}>{UI.LABEL_SYSTEMS}</span>
-                <span style={{ color: '#00ff41' }}>{UI.VALUE_ONLINE}</span>
+                <span style={{ color: T.primaryDim }}>{UI.LABEL_SYSTEMS}</span>
+                <span style={{ color: T.primary }}>{UI.VALUE_ONLINE}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px', opacity: 0.7 }}>
-                <span style={{ color: '#00aa2a' }}>{UI.LABEL_LAST_SCAN}</span>
-                <span style={{ color: '#00aa2a' }}>{lastScanTime}</span>
+                <span style={{ color: T.primaryDim }}>{UI.LABEL_LAST_SCAN}</span>
+                <span style={{ color: T.primaryDim }}>{lastScanTime}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', opacity: 0.7 }}>
-                <span style={{ color: '#00aa2a' }}>{UI.LABEL_CONTACTS}</span>
-                <span style={{ color: '#00aa2a' }}>{UI.CONTACTS_NONE}</span>
+                <span style={{ color: T.primaryDim }}>{UI.LABEL_CONTACTS}</span>
+                <span style={{ color: T.primaryDim }}>{UI.CONTACTS_NONE}</span>
               </div>
             </div>
 
@@ -1421,9 +1491,9 @@ export default function Home() {
           </div>
 
           {/* Minimal corner decorations */}
-          <div style={{ position: 'absolute', top: 20, left: 20, width: 25, height: 25, borderLeft: '1px solid #00ff4120', borderTop: '1px solid #00ff4120' }} />
-          <div style={{ position: 'absolute', bottom: 20, left: 20, width: 25, height: 25, borderLeft: '1px solid #00ff4120', borderBottom: '1px solid #00ff4120' }} />
-          <div style={{ position: 'absolute', bottom: 20, right: 20, width: 25, height: 25, borderRight: '1px solid #00ff4120', borderBottom: '1px solid #00ff4120' }} />
+          <div style={{ position: 'absolute', top: 20, left: 20, width: 25, height: 25, borderLeft: `1px solid ${T.primary}20`, borderTop: `1px solid ${T.primary}20` }} />
+          <div style={{ position: 'absolute', bottom: 20, left: 20, width: 25, height: 25, borderLeft: `1px solid ${T.primary}20`, borderBottom: `1px solid ${T.primary}20` }} />
+          <div style={{ position: 'absolute', bottom: 20, right: 20, width: 25, height: 25, borderRight: `1px solid ${T.primary}20`, borderBottom: `1px solid ${T.primary}20` }} />
           
           {/* Bottom status bar */}
           <div style={{
@@ -1432,7 +1502,7 @@ export default function Home() {
             left: '50%',
             transform: 'translateX(-50%)',
             fontSize: '9px',
-            color: '#00aa2a',
+            color: T.primaryDim,
             letterSpacing: '2px',
             opacity: 0.4,
           }}>
@@ -1448,15 +1518,15 @@ export default function Home() {
       <style dangerouslySetInnerHTML={{ __html: animationStyles }} />
       <div style={{
         minHeight: '100vh',
-        background: '#0a0f0a',
-        color: '#00ff41',
+        background: T.background,
+        color: T.primary,
         padding: '16px',
         fontFamily: "'Share Tech Mono', monospace",
       }}>
         {/* Header */}
         <header style={{ 
           marginBottom: '20px',
-          borderBottom: '1px solid #1a3a1a',
+          borderBottom: `1px solid ${T.border}`,
           paddingBottom: '16px',
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
@@ -1466,12 +1536,12 @@ export default function Home() {
                   fontSize: '24px', 
                 fontWeight: 'bold',
                 letterSpacing: '4px',
-                textShadow: '0 0 20px rgba(0,255,65,0.5)',
+                textShadow: `0 0 20px ${T.glow}`,
               }}>
                 ◆ NATO WATCH
               </div>
               <span style={{ 
-                background: '#ff3333', 
+                background: T.danger, 
                 color: '#000', 
                 padding: '2px 8px', 
                 fontSize: '10px',
@@ -1482,9 +1552,9 @@ export default function Home() {
               <button
                 onClick={() => setSoundEnabled(!soundEnabled)}
                 style={{
-                  background: soundEnabled ? 'rgba(0,255,65,0.2)' : 'transparent',
-                  border: `1px solid ${soundEnabled ? '#00ff41' : '#1a3a1a'}`,
-                  color: soundEnabled ? '#00ff41' : '#00aa2a',
+                  background: soundEnabled ? `${T.primary}33` : 'transparent',
+                  border: `1px solid ${soundEnabled ? T.primary : T.border}`,
+                  color: soundEnabled ? T.primary : T.primaryDim,
                   padding: '2px 8px',
                   fontSize: '10px',
                   cursor: 'pointer',
@@ -1498,17 +1568,34 @@ export default function Home() {
               >
                 {soundEnabled ? '🔊' : '🔇'} AUDIO
               </button>
+              {/* Theme toggle */}
+              <button
+                onClick={() => setTheme(theme === 'military' ? 'cyber' : 'military')}
+                style={{
+                  background: `${T.primary}22`,
+                  border: `1px solid ${T.primary}`,
+                  color: T.primary,
+                  padding: '2px 8px',
+                  fontSize: '10px',
+                  cursor: 'pointer',
+                  borderRadius: '2px',
+                  fontFamily: 'inherit',
+                  letterSpacing: '1px',
+                }}
+              >
+                {T.name}
+              </button>
             </div>
-            <p style={{ color: '#00aa2a', marginTop: '4px', fontSize: '12px', letterSpacing: '2px' }}>
+            <p style={{ color: T.primaryDim, marginTop: '4px', fontSize: '12px', letterSpacing: '2px' }}>
               MILITARY AIRCRAFT SURVEILLANCE SYSTEM
             </p>
           </div>
           
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#00ff41', textShadow: '0 0 10px rgba(0,255,65,0.3)' }}>
+            <div style={{ fontSize: '24px', fontWeight: 'bold', color: T.primary, textShadow: `0 0 10px ${T.glow}` }}>
               {time}
             </div>
-            <div style={{ fontSize: '11px', color: '#00aa2a', marginTop: '4px' }}>
+            <div style={{ fontSize: '11px', color: T.primaryDim, marginTop: '4px' }}>
               ZULU: {new Date().toISOString().slice(11, 19)}Z
             </div>
           </div>
@@ -1631,6 +1718,7 @@ export default function Home() {
               aircraft={filteredAircraft} 
               height="320px" 
               isMain={true}
+              theme={T}
             />
           </section>
 
@@ -1647,6 +1735,7 @@ export default function Home() {
                   aircraft={filteredAircraft} 
                   height="160px"
                   onClick={() => setFocusedRegion(r)}
+                  theme={T}
                 />
               ))}
             </div>
@@ -1665,6 +1754,7 @@ export default function Home() {
                   aircraft={filteredAircraft} 
                   height="140px"
                   onClick={() => setFocusedRegion(h)}
+                  theme={T}
                 />
               ))}
             </div>
@@ -1673,7 +1763,7 @@ export default function Home() {
 
         {/* Sidebar */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <LiveFeed aircraft={aircraft} />
+          <LiveFeed aircraft={aircraft} theme={T} />
           
           {/* Quick Access Panel */}
           <div style={{
