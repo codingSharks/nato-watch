@@ -572,10 +572,10 @@ export default function Home() {
   const LISTENING_MESSAGES = lang === 'de' ? LISTENING_MESSAGES_DE : LISTENING_MESSAGES_EN;
   const T = THEMES[theme]; // Current theme colors
 
-  // Use the Airplanes.live /mil endpoint - returns ALL military aircraft worldwide
+  // Dynamisch: alle, nur mil oder nur ziv
   const { data: airspaceData, status: airspaceStatus, error: airspaceError, lastUpdate, refetch } = useAirspace({
-    mode: 'mil', // Use military-only endpoint for global coverage
-    pollMs: 2500, // 2.5s polling to stay safely under rate limit
+    mode: filter === 'all' ? 'all' : filter === 'military' ? 'mil' : 'civ',
+    pollMs: 2500,
     enabled: isClient,
   });
 
