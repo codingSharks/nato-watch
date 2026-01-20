@@ -1082,40 +1082,24 @@ export default function Home() {
             }} />
           </div>
 
-          {/* TEST: Riesiges Zahnrad-Icon mittig */}
+          {/* TEST: Riesiges statisches Test-DIV mittig */}
           <div style={{
             position: 'fixed',
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
             zIndex: 9999,
-            background: '#222',
-            border: `4px solid ${T.primary}`,
-            borderRadius: '50%',
-            boxShadow: `0 0 40px ${T.primary}99`,
-            padding: '40px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            background: '#ff00ff',
+            color: '#fff',
+            border: '8px solid #fff',
+            borderRadius: '40px',
+            boxShadow: '0 0 40px #ff00ff99',
+            padding: '60px 100px',
+            fontSize: '48px',
+            fontWeight: 'bold',
+            textAlign: 'center',
           }}>
-            <button
-              onClick={() => setShowSettings(true)}
-              style={{
-                background: 'rgba(0,0,0,0.15)',
-                border: `2px solid ${T.primary}`,
-                color: T.primary,
-                padding: '40px 60px',
-                fontSize: '80px',
-                cursor: 'pointer',
-                borderRadius: '50%',
-                fontFamily: 'inherit',
-                boxShadow: `0 0 24px ${T.primary}33`,
-                transition: 'background 0.2s',
-              }}
-              title={lang === 'de' ? 'Einstellungen' : 'Settings'}
-            >
-              <span role="img" aria-label="settings">⚙️</span>
-            </button>
+            TEST-DIV SICHTBAR?
           </div>
 
           {/* Settings Modal */}
