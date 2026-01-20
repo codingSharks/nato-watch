@@ -554,6 +554,7 @@ export default function Home() {
   const [theme, setTheme] = useState<'military' | 'cyber'>('military');
   const [showSignal, setShowSignal] = useState(true);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [sessionSig] = useState(() => generateSessionSig());
   const [clientInfo, setClientInfo] = useState<{
     ip: string;
@@ -1081,49 +1082,116 @@ export default function Home() {
             }} />
           </div>
 
-          {/* Language & Theme toggle - top right */}
-          <div style={{ position: 'absolute', top: 20, right: 20, display: 'flex', gap: '8px', zIndex: 10 }}>
+          {/* Settings button - top right */}
+          <div style={{ position: 'absolute', top: 20, right: 20, zIndex: 20 }}>
             <button
-              onClick={() => setTheme(theme === 'military' ? 'cyber' : 'military')}
+              onClick={() => setShowSettings(true)}
               style={{
-                background: theme === 'cyber' ? 'rgba(0,240,255,0.15)' : 'rgba(0,255,65,0.15)',
+                background: 'rgba(0,0,0,0.15)',
                 border: `1px solid ${T.primary}`,
                 color: T.primary,
-                padding: '4px 8px',
-                fontSize: '9px',
+                padding: '6px 10px',
+                fontSize: '16px',
                 cursor: 'pointer',
-                borderRadius: '2px',
+                borderRadius: '50%',
                 fontFamily: 'inherit',
-                letterSpacing: '1px',
+                boxShadow: `0 0 8px ${T.primary}33`,
+                transition: 'background 0.2s',
               }}
-            >{T.name}</button>
-            <button
-              onClick={() => setLang('en')}
-              style={{
-                background: lang === 'en' ? `${T.primary}22` : 'transparent',
-                border: `1px solid ${lang === 'en' ? T.primary : T.border}`,
-                color: lang === 'en' ? T.primary : T.primaryDim,
-                padding: '4px 8px',
-                fontSize: '9px',
-                cursor: 'pointer',
-                borderRadius: '2px',
-                fontFamily: 'inherit',
-              }}
-            >EN</button>
-            <button
-              onClick={() => setLang('de')}
-              style={{
-                background: lang === 'de' ? `${T.primary}22` : 'transparent',
-                border: `1px solid ${lang === 'de' ? T.primary : T.border}`,
-                color: lang === 'de' ? T.primary : T.primaryDim,
-                padding: '4px 8px',
-                fontSize: '9px',
-                cursor: 'pointer',
-                borderRadius: '2px',
-                fontFamily: 'inherit',
-              }}
-            >DE</button>
+              title={lang === 'de' ? 'Einstellungen' : 'Settings'}
+            >
+              <span role="img" aria-label="settings">⚙️</span>
+            </button>
           </div>
+
+          {/* Settings Modal */}
+          {showSettings && (
+            <div style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0,0,0,0.85)',
+              zIndex: 1000,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontFamily: "'Share Tech Mono', monospace",
+            }}>
+              <div style={{
+                background: T.backgroundAlt,
+                border: `1px solid ${T.border}`,
+                borderRadius: '8px',
+                padding: '32px 28px 24px 28px',
+                minWidth: '320px',
+                boxShadow: `0 0 40px ${T.primary}33`,
+                color: T.primary,
+                position: 'relative',
+              }}>
+                <div style={{ fontSize: '18px', fontWeight: 700, marginBottom: '18px', letterSpacing: '2px', textAlign: 'center' }}>
+                  {lang === 'de' ? 'Einstellungen' : 'Settings'}
+                </div>
+                <div style={{ marginBottom: '18px' }}>
+                  <label style={{ fontSize: '13px', color: T.primaryDim, marginRight: '10px' }}>{lang === 'de' ? 'Theme:' : 'Theme:'}</label>
+                  <select
+                    value={theme}
+                    onChange={e => setTheme(e.target.value as 'military' | 'cyber')}
+                    style={{
+                      background: T.background,
+                      color: T.primary,
+                      border: `1px solid ${T.primary}`,
+                      borderRadius: '2px',
+                      padding: '4px 12px',
+                      fontFamily: 'inherit',
+                      fontSize: '13px',
+                      marginLeft: '4px',
+                    }}
+                  >
+                    <option value="military">MILITARY</option>
+                    <option value="cyber">CYBER</option>
+                  </select>
+                </div>
+                <div style={{ marginBottom: '18px' }}>
+                  <label style={{ fontSize: '13px', color: T.primaryDim, marginRight: '10px' }}>{lang === 'de' ? 'Sprache:' : 'Language:'}</label>
+                  <select
+                    value={lang}
+                    onChange={e => setLang(e.target.value as 'en' | 'de')}
+                    style={{
+                      background: T.background,
+                      color: T.primary,
+                      border: `1px solid ${T.primary}`,
+                      borderRadius: '2px',
+                      padding: '4px 12px',
+                      fontFamily: 'inherit',
+                      fontSize: '13px',
+                      marginLeft: '4px',
+                    }}
+                  >
+                    <option value="en">ENGLISH</option>
+                    <option value="de">DEUTSCH</option>
+                  </select>
+                </div>
+                <button
+                  onClick={() => setShowSettings(false)}
+                  style={{
+                    background: 'transparent',
+                    border: `1px solid ${T.primary}`,
+                    color: T.primary,
+                    padding: '8px 24px',
+                    fontSize: '12px',
+                    cursor: 'pointer',
+                    borderRadius: '2px',
+                    fontFamily: 'inherit',
+                    letterSpacing: '1px',
+                    marginTop: '10px',
+                    display: 'block',
+                    marginLeft: 'auto',
+                    marginRight: 'auto',
+                  }}
+                >
+                  {lang === 'de' ? 'Schließen' : 'Close'}
+                </button>
+              </div>
+            </div>
+          )}
 
           <div style={{ textAlign: 'center', zIndex: 10, maxWidth: '420px', width: '100%' }}>
             
