@@ -400,15 +400,15 @@ function MapCard({ region, aircraft, height, onClick, isMain, theme }: { region:
     <div 
       onClick={onClick}
       style={{
-        background: 'linear-gradient(180deg, #0d1a0d 0%, #0a0f0a 100%)',
+        background: `linear-gradient(180deg, ${T.surface} 0%, ${T.background} 100%)`,
         borderRadius: '4px',
         overflow: 'hidden',
-        border: isMain ? '2px solid #00ff41' : '1px solid #1a3a1a',
+        border: isMain ? `2px solid ${T.primary}` : `1px solid ${T.border}`,
         boxShadow: region.status === 'critical' 
-          ? '0 0 20px rgba(255,51,51,0.3)' 
+          ? `0 0 20px ${T.danger}55` 
           : isMain 
-            ? '0 0 30px rgba(0,255,65,0.3)' 
-            : '0 0 10px rgba(0,255,65,0.1)',
+            ? `0 0 30px ${T.primary}55` 
+            : `0 0 10px ${T.primary}22`,
         cursor: isClickable ? 'pointer' : 'default',
         transition: 'all 0.3s ease',
         transform: isClickable ? 'scale(1)' : 'scale(1)',
@@ -416,24 +416,24 @@ function MapCard({ region, aircraft, height, onClick, isMain, theme }: { region:
       onMouseEnter={(e) => {
         if (isClickable) {
           e.currentTarget.style.transform = 'scale(1.02)';
-          e.currentTarget.style.borderColor = '#00ff41';
+          e.currentTarget.style.borderColor = T.primary;
         }
       }}
       onMouseLeave={(e) => {
         if (isClickable) {
           e.currentTarget.style.transform = 'scale(1)';
-          e.currentTarget.style.borderColor = '#1a3a1a';
+          e.currentTarget.style.borderColor = T.border;
         }
       }}
     >
       {/* Header */}
       <div style={{
         padding: '8px 12px',
-        borderBottom: '1px solid #1a3a1a',
+        borderBottom: `1px solid ${T.border}`,
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        background: 'rgba(0,20,0,0.5)',
+        background: T.surface,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           {statusConf && (
@@ -449,22 +449,22 @@ function MapCard({ region, aircraft, height, onClick, isMain, theme }: { region:
           <span style={{ 
             fontWeight: 600, 
             fontSize: isMain ? '14px' : '11px', 
-            color: '#00ff41',
+            color: T.primary,
             letterSpacing: '1px',
           }}>{region.name}</span>
           {isClickable && (
-            <span style={{ fontSize: '10px', color: '#00aa2a', opacity: 0.7 }}>
+            <span style={{ fontSize: '10px', color: T.primaryDim, opacity: 0.7 }}>
               [CLICK TO FOCUS]
             </span>
           )}
         </div>
         <div style={{ display: 'flex', gap: '12px', fontSize: '11px' }}>
-          <span style={{ color: '#00aa2a' }}>{filtered.length} TGT</span>
+          <span style={{ color: T.primaryDim }}>{filtered.length} TGT</span>
           {milCount > 0 && (
             <span style={{ 
-              color: '#ff3333', 
+              color: T.danger, 
               fontWeight: 600,
-              textShadow: '0 0 8px rgba(255,51,51,0.5)',
+              textShadow: `0 0 8px ${T.danger}88`,
             }}>
               ⚠ {milCount} MIL
             </span>
@@ -474,10 +474,10 @@ function MapCard({ region, aircraft, height, onClick, isMain, theme }: { region:
       
       {/* Map */}
       <div style={{ position: 'relative' }}>
-        <div ref={containerRef} style={{ height, width: '100%', background: '#0a0f0a' }} />
+        <div ref={containerRef} style={{ height, width: '100%', background: T.background }} />
         {/* Corner decorations */}
-        <div style={{ position: 'absolute', top: 4, left: 4, width: 12, height: 12, borderLeft: '2px solid #00ff41', borderTop: '2px solid #00ff41', opacity: 0.5 }} />
-        <div style={{ position: 'absolute', top: 4, right: 4, width: 12, height: 12, borderRight: '2px solid #00ff41', borderTop: '2px solid #00ff41', opacity: 0.5 }} />
+        <div style={{ position: 'absolute', top: 4, left: 4, width: 12, height: 12, borderLeft: `2px solid ${T.primary}`, borderTop: `2px solid ${T.primary}`, opacity: 0.5 }} />
+        <div style={{ position: 'absolute', top: 4, right: 4, width: 12, height: 12, borderRight: `2px solid ${T.primary}`, borderTop: `2px solid ${T.primary}`, opacity: 0.5 }} />
         <div style={{ position: 'absolute', bottom: 4, left: 4, width: 12, height: 12, borderLeft: '2px solid #00ff41', borderBottom: '2px solid #00ff41', opacity: 0.5 }} />
         <div style={{ position: 'absolute', bottom: 4, right: 4, width: 12, height: 12, borderRight: '2px solid #00ff41', borderBottom: '2px solid #00ff41', opacity: 0.5 }} />
       </div>
