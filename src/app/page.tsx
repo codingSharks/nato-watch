@@ -1591,6 +1591,23 @@ export default function Home() {
         padding: '16px',
         fontFamily: "'Share Tech Mono', monospace",
       }}>
+        {/* TEST-BANNER für Deployment-Check */}
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          zIndex: 9999,
+          background: '#ff00ff',
+          color: '#fff',
+          fontWeight: 'bold',
+          padding: '6px 18px',
+          fontSize: '16px',
+          letterSpacing: '2px',
+          borderBottomRightRadius: '12px',
+          boxShadow: '0 2px 8px #0008',
+        }}>
+          TEST-DEPLOYMENT
+        </div>
         {/* Header */}
         <header style={{ 
           marginBottom: '20px',
