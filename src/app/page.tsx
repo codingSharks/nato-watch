@@ -1082,24 +1082,22 @@ export default function Home() {
             }} />
           </div>
 
-          {/* TEST: Riesiges statisches Test-DIV mittig */}
+          {/* TEST: Label direkt neben der Uhr oben rechts */}
           <div style={{
-            position: 'fixed',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
+            position: 'absolute',
+            top: 20,
+            right: 120,
             zIndex: 9999,
             background: '#ff00ff',
             color: '#fff',
-            border: '8px solid #fff',
-            borderRadius: '40px',
-            boxShadow: '0 0 40px #ff00ff99',
-            padding: '60px 100px',
-            fontSize: '48px',
+            border: '2px solid #fff',
+            borderRadius: '12px',
+            padding: '8px 18px',
+            fontSize: '22px',
             fontWeight: 'bold',
-            textAlign: 'center',
+            boxShadow: '0 0 12px #ff00ff99',
           }}>
-            TEST-DIV SICHTBAR?
+            TEST-OBEN-RECHTS
           </div>
 
           {/* Settings Modal */}
