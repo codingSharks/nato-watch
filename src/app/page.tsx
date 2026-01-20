@@ -1568,11 +1568,11 @@ export default function Home() {
               >
                 {soundEnabled ? '🔊' : '🔇'} AUDIO
               </button>
-              {/* Theme toggle */}
+              {/* Theme toggle immer sichtbar */}
               <button
                 onClick={() => setTheme(theme === 'military' ? 'cyber' : 'military')}
                 style={{
-                  background: `${T.primary}22`,
+                  background: theme === 'cyber' ? 'rgba(0,240,255,0.15)' : 'rgba(0,255,65,0.15)',
                   border: `1px solid ${T.primary}`,
                   color: T.primary,
                   padding: '2px 8px',
@@ -1581,6 +1581,7 @@ export default function Home() {
                   borderRadius: '2px',
                   fontFamily: 'inherit',
                   letterSpacing: '1px',
+                  marginLeft: '8px',
                 }}
               >
                 {T.name}
