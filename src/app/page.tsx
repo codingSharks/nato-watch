@@ -1673,9 +1673,30 @@ export default function Home() {
             </p>
           </div>
           
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '24px', fontWeight: 'bold', color: T.primary, textShadow: `0 0 10px ${T.glow}` }}>
-              {time}
+          <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', position: 'relative' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ fontSize: '24px', fontWeight: 'bold', color: T.primary, textShadow: `0 0 10px ${T.glow}` }}>
+                {time}
+              </div>
+              {/* Settings button (Zahnrad) */}
+              <button
+                onClick={() => setShowSettings(true)}
+                style={{
+                  background: 'rgba(0,0,0,0.15)',
+                  border: `1px solid ${T.primary}`,
+                  color: T.primary,
+                  padding: '6px 10px',
+                  fontSize: '20px',
+                  cursor: 'pointer',
+                  borderRadius: '50%',
+                  fontFamily: 'inherit',
+                  boxShadow: `0 0 8px ${T.primary}33`,
+                  transition: 'background 0.2s',
+                }}
+                title={lang === 'de' ? 'Einstellungen' : 'Settings'}
+              >
+                <span role="img" aria-label="settings">⚙️</span>
+              </button>
             </div>
             <div style={{ fontSize: '11px', color: T.primaryDim, marginTop: '4px' }}>
               ZULU: {new Date().toISOString().slice(11, 19)}Z
