@@ -1082,20 +1082,34 @@ export default function Home() {
             }} />
           </div>
 
-          {/* Settings button - top right */}
-          <div style={{ position: 'absolute', top: 20, right: 20, zIndex: 20 }}>
+          {/* TEST: Riesiges Zahnrad-Icon mittig */}
+          <div style={{
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: 9999,
+            background: '#222',
+            border: `4px solid ${T.primary}`,
+            borderRadius: '50%',
+            boxShadow: `0 0 40px ${T.primary}99`,
+            padding: '40px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
             <button
               onClick={() => setShowSettings(true)}
               style={{
                 background: 'rgba(0,0,0,0.15)',
-                border: `1px solid ${T.primary}`,
+                border: `2px solid ${T.primary}`,
                 color: T.primary,
-                padding: '6px 10px',
-                fontSize: '16px',
+                padding: '40px 60px',
+                fontSize: '80px',
                 cursor: 'pointer',
                 borderRadius: '50%',
                 fontFamily: 'inherit',
-                boxShadow: `0 0 8px ${T.primary}33`,
+                boxShadow: `0 0 24px ${T.primary}33`,
                 transition: 'background 0.2s',
               }}
               title={lang === 'de' ? 'Einstellungen' : 'Settings'}
