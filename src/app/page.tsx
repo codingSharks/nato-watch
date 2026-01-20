@@ -572,27 +572,32 @@ export default function Home() {
   const LISTENING_MESSAGES = lang === 'de' ? LISTENING_MESSAGES_DE : LISTENING_MESSAGES_EN;
   const T = THEMES[theme]; // Current theme colors
 
-  // Dynamisch: alle, nur mil oder nur ziv
+  // Nutze die neuen Modi: 'all' (alle Flüge), 'nato' (nur militärisch)
   const { data: airspaceData, status: airspaceStatus, error: airspaceError, lastUpdate, refetch } = useAirspace({
-    mode: filter === 'all' ? 'all' : filter === 'military' ? 'mil' : 'civ',
+    mode: filter === 'all' ? 'all' : filter === 'military' ? 'nato' : 'all',
     pollMs: 2500,
     enabled: isClient,
   });
 
-  // Convert airspace data to Aircraft format for compatibility
-  const aircraft: Aircraft[] = (airspaceData?.aircraft || []).map(ac => ({
-    id: ac.id,
-    hex: ac.hex,
-    latitude: ac.lat ?? 0,
-    longitude: ac.lon ?? 0,
+  // Convert airspace data to Aircraft format für Kompatibilität
+  let aircraft: Aircraft[] = (airspaceData?.aircraft || []).map(ac => ({
+    id: ac.id || ac.icao || ac.hex,
+    hex: ac.hex || ac.icao || ac.id,
+    latitude: ac.lat ?? ac.latitude ?? 0,
+    longitude: ac.lon ?? ac.longitude ?? 0,
     track: ac.track,
     is_military: ac.is_military,
     callsign: ac.callsign,
-    altitude: typeof ac.alt_baro === 'number' ? ac.alt_baro : null,
-    ground_speed: ac.gs,
+    altitude: typeof ac.alt_baro === 'number' ? ac.alt_baro : ac.altitude ?? null,
+    ground_speed: ac.gs ?? ac.ground_speed,
     type: ac.type,
     reg: ac.reg,
   })).filter(ac => ac.latitude !== 0 && ac.longitude !== 0);
+
+  // Bei Filter "civilian" nur nicht-militärische anzeigen
+  if (filter === 'civilian') {
+    aircraft = aircraft.filter(a => !a.is_military);
+  }
 
   const lastScanTime = lastUpdate || '--:--:-- UTC';
   // For /mil endpoint, there's no radius - we're tracking globally

@@ -53,18 +53,18 @@ export type AirspaceStatus =
  * @param opts.enabled - Enable/disable polling
  */
 export function useAirspace(opts?: {
-  mode?: "mil" | "point";
+  mode?: "mil" | "point" | "all" | "nato";
   lat?: number;
   lon?: number;
   radiusNm?: number;
   pollMs?: number;
   enabled?: boolean;
 }) {
-  const mode = opts?.mode ?? "mil"; // Default to military endpoint
+  const mode = opts?.mode ?? "mil";
   const lat = opts?.lat ?? 52.52;
   const lon = opts?.lon ?? 13.405;
   const radiusNm = opts?.radiusNm ?? 250;
-  const pollMs = opts?.pollMs ?? 2500; // 2.5s to stay safely under 1req/sec
+  const pollMs = opts?.pollMs ?? 2500;
   const enabled = opts?.enabled ?? true;
 
   const [data, setData] = useState<AirspaceResponse | null>(null);
@@ -79,6 +79,13 @@ export function useAirspace(opts?: {
     if (mode === "mil") {
       return `/api/mil`;
     }
+    if (mode === "all") {
+      return `/api/aircraft?filter=all`;
+    }
+    if (mode === "nato") {
+      return `/api/aircraft?filter=nato`;
+    }
+    // point mode fallback
     const params = new URLSearchParams({
       lat: String(lat),
       lon: String(lon),
