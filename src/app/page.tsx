@@ -580,23 +580,26 @@ export default function Home() {
   });
 
   // Convert airspace data to Aircraft format für Kompatibilität
-  let aircraft: Aircraft[] = (airspaceData?.aircraft || []).map(ac => ({
-    id: ac.id || ac.icao || ac.hex,
-    hex: ac.hex || ac.icao || ac.id,
-    latitude: ac.lat ?? ac.latitude ?? 0,
-    longitude: ac.lon ?? ac.longitude ?? 0,
-    track: ac.track,
-    is_military: ac.is_military,
-    callsign: ac.callsign,
-    altitude: typeof ac.alt_baro === 'number' ? ac.alt_baro : ac.altitude ?? null,
-    ground_speed: ac.gs ?? ac.ground_speed,
-    type: ac.type,
-    reg: ac.reg,
-  })).filter(ac => ac.latitude !== 0 && ac.longitude !== 0);
-
-  // Bei Filter "civilian" nur nicht-militärische anzeigen
-  if (filter === 'civilian') {
-    aircraft = aircraft.filter(a => !a.is_military);
+  let aircraft: Aircraft[] = [];
+  try {
+    aircraft = (airspaceData?.aircraft || []).map(ac => ({
+      id: ac.id || ac.icao || ac.hex,
+      hex: ac.hex || ac.icao || ac.id,
+      latitude: ac.lat ?? ac.latitude ?? 0,
+      longitude: ac.lon ?? ac.longitude ?? 0,
+      track: ac.track,
+      is_military: ac.is_military,
+      callsign: ac.callsign,
+      altitude: typeof ac.alt_baro === 'number' ? ac.alt_baro : ac.altitude ?? null,
+      ground_speed: ac.gs ?? ac.ground_speed,
+      type: ac.type,
+      reg: ac.reg,
+    })).filter(ac => ac.latitude !== 0 && ac.longitude !== 0);
+    if (filter === 'civilian') {
+      aircraft = aircraft.filter(a => !a.is_military);
+    }
+  } catch (e) {
+    aircraft = [];
   }
 
   const lastScanTime = lastUpdate || '--:--:-- UTC';
@@ -748,6 +751,29 @@ export default function Home() {
   const totalMil = aircraft.filter(a => a.is_military).length;
   const totalCiv = aircraft.length - totalMil;
 
+  // Fehleranzeige, wenn API keine Daten liefert
+  if (error) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        background: '#1a1a1a',
+        color: '#ff3333',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontFamily: "'Share Tech Mono', monospace",
+        fontSize: '22px',
+        textAlign: 'center',
+        padding: '40px',
+      }}>
+        <div>
+          <div>Fehler beim Laden der Flugdaten!</div>
+          <div style={{ fontSize: '16px', color: '#fff', marginTop: '18px' }}>{String(error)}</div>
+          <div style={{ fontSize: '12px', color: '#ff3333', marginTop: '24px' }}>Bitte prüfe die API-Keys und die Upstream-Verbindung.</div>
+        </div>
+      </div>
+    );
+  }
   // Loading screen with enhanced scanner
   if (!isClient || loading) {
     return (
