@@ -40,8 +40,10 @@ interface OpenSkyState {
 
 async function fetchADSBExchange(bbox: number[]) {
   const apiKey = process.env.ADSBX_KEY;
-  if (!apiKey) return null;
-  
+  if (!apiKey) {
+    console.error('ADS-B Exchange API KEY fehlt!');
+    return { error: 'ADSBX_KEY missing' };
+  }
   try {
     const response = await fetch(
       `https://adsbexchange-com1.p.rapidapi.com/v2/lat/${bbox[1]}/lon/${bbox[0]}/dist/1000/`,
@@ -53,11 +55,11 @@ async function fetchADSBExchange(bbox: number[]) {
         next: { revalidate: 30 }
       }
     );
-    
-    if (!response.ok) return null;
-    
+    if (!response.ok) {
+      console.error('ADS-B Exchange API HTTP Error:', response.status);
+      return { error: `ADSBX HTTP ${response.status}` };
+    }
     const data = await response.json();
-    
     if (data?.ac) {
       return data.ac.map((aircraft: ADSBExchangeAircraft) => ({
         icao: aircraft.hex,
@@ -73,10 +75,10 @@ async function fetchADSBExchange(bbox: number[]) {
         timestamp: new Date().toISOString()
       })).filter((a: any) => a.latitude && a.longitude);
     }
-    return [];
+    return { error: 'ADSBX: No aircraft data' };
   } catch (error) {
     console.error('ADS-B Exchange API error:', error);
-    return null;
+    return { error: 'ADSBX Exception: ' + (error?.message || String(error)) };
   }
 }
 
@@ -154,10 +156,16 @@ export async function GET(request: NextRequest) {
     let aircraft: any[] = [];
     
     // Try ADS-B Exchange first, fallback to OpenSky
+    let adsbxResult: any = null;
     if (source === 'auto' || source === 'adsbx') {
-      aircraft = await fetchADSBExchange(bbox);
+      adsbxResult = await fetchADSBExchange(bbox);
+      if (Array.isArray(adsbxResult)) {
+        aircraft = adsbxResult;
+      } else if (adsbxResult && adsbxResult.error) {
+        // Fehler-Objekt von ADSBX
+        return NextResponse.json({ error: adsbxResult.error, aircraft: [], meta: { region, total: 0, loitering: 0, timestamp: new Date().toISOString() } }, { status: 500 });
+      }
     }
-    
     if (!aircraft || aircraft.length === 0) {
       aircraft = await fetchOpenSky(bbox);
     }
